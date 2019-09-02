@@ -1,0 +1,132 @@
+<!-- 
+	  * This is custom slider which will calculate the Screen width and allow user to move item as per 
+	  their requirments.
+	  * Author : Vikas Sharma
+-->
+
+
+<style>
+
+/*Slider css start*/
+.carousel-control{font-size:30px; color:#000; width: auto; cursor: pointer;}
+.right-angle{ right: 0 !important;  left: inherit;}
+.left-angle{ left:0;}
+.questionIds{float: left;transition: all 2s ease-out;}
+.newQList li{float: left;}
+.mcq-qust {  width: 100%;float: left; overflow: hidden; height:38px;}
+.disabled{ opacity:.2; pointer-events: none; }
+</style>
+
+
+<div class="mcq-qust">                         
+                            <ul class="questionIds newQList">
+                                <li class="nav-li " ng-class=" { skipped: navStatus[{{$index}}].skipped, active: navStatus[{{$index}}].active, attempted: navStatus[{{$index}}].attempted}" id="nav_{{$index}}" ng-click="showQuestion($index, $event)" ng-repeat="ques in userResponse.userData">
+                                    {{ques.questionIndex}}
+                                </li>
+                            </ul>         
+                            <a class="carousel-control left-angle"  onClick="movePrav(this)"><i class="fa fa-angle-left"></i></a>
+                            <a class="carousel-control right-angle"  onClick="moveNext(this)"><i class="fa fa-angle-right"></i></a>
+                        </div>
+
+
+
+
+
+<script>
+  
+var itemCount = '';
+var timeOutFlag = true;
+
+var itemTobeMoved = 10;
+var movingForward = 0;
+var movingBackward = 0;
+var docWidth;
+var totalShowedItems;//30
+$(document).ready(function(){
+    $('.right-angle').addClass('hide');
+    $('.left-angle').addClass('hide');
+    if(timeOutFlag){
+        setTimeout(function(){
+            itemCount = $('.mcq-qust').find('.newQList').find('.nav-li').length; 
+            timeOutFlag = false;
+            var totalWidth = itemCount * 38; // 38 is li item width.
+            $('.mcq-qust').find('.newQList').css("width",totalWidth); 
+            var commanWidth = $('.mcq-qust').width();
+            if(commanWidth <= totalWidth){
+                $('.right-angle').removeClass('hide');
+                $('.left-angle').removeClass('hide');
+            }
+        },4000);
+}
+    if(movingBackward < 1){
+        $('.left-angle').addClass('disabled');
+    }
+   
+});
+
+function moveNext(obj){
+    totalShowedItems = getWidth(this);
+    
+    $('.left-angle').removeClass('disabled');
+    
+    if((itemCount-totalShowedItems+itemTobeMoved) == movingForward || (itemCount-totalShowedItems+itemTobeMoved) < movingForward){
+        //alert("No more question available ..");
+        $('.right-angle').addClass('disabled');
+        return false;
+    }
+    
+    var lem = $(obj).closest('.mcq-qust').find('.newQList').length;
+    if(movingForward == 0){
+        var movedItems = itemTobeMoved * 38;
+        movingForward = itemTobeMoved;
+        //movingBackward = itemTobeMoved;
+    } else {
+        var variableMove = movingForward;
+        var movedItems =  variableMove * 38;
+    }
+    
+    $(obj).closest('.mcq-qust').find('.newQList').css("transform","translate3d(-"+ movedItems +"px, 0px, 0px)"); 
+    movingForward += itemTobeMoved;
+    movingBackward += itemTobeMoved;
+    
+    if((itemCount-totalShowedItems+itemTobeMoved) == movingForward || (itemCount-totalShowedItems+itemTobeMoved) < movingForward){
+        $('.right-angle').addClass('disabled');
+        return false;
+    }
+    
+    return true;
+  
+}
+
+function movePrav(obj){
+    
+    $('.right-angle').removeClass('disabled');
+    var lem = $(obj).closest('.mcq-qust').find('.newQList').length;
+    
+    if(movingBackward == 0){
+        var movedItems = 0;
+        return false;
+    } else {
+        var variableMove = movingBackward - itemTobeMoved;
+        var movedItems =  variableMove * 38;
+    }
+    $(obj).closest('.mcq-qust').find('.newQList').css("transform","translate3d(-"+ movedItems +"px, 0px, 0px)");
+    if(movingForward != 0){
+        movingForward -= itemTobeMoved;
+    }
+    movingBackward -= itemTobeMoved;
+    
+    if(movingBackward == 0){
+        $('.left-angle').addClass('disabled');
+    }
+    
+    return true;
+}
+
+
+function getWidth(obj){
+    var docWidth = $('.mcq-qust').width() / 38;
+    return docWidth.toFixed(); // return round off 
+}
+   
+</script>
